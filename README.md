@@ -44,7 +44,7 @@ Currently under active development, I'd consider it at the alpha stage now and b
 
 1.  edit the account `config.yml` as appropriate, `example-full-config.yml` isn't a bad place to start.
 2.  bundle install
-3.  assume and administrative role in the account in question and  run ```bundle exec rake ./concierge.rb <path to your yaml file>```
+3.  assume and administrative role in the account in question and  run ```bundle exec ./concierge.rb <path to your yaml file>```
 
 # Maintainers
 
