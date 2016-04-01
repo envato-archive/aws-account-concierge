@@ -1,6 +1,10 @@
 # all policy files are filtered through
-# sed -e "s/ACCOUNTNUMBER/${AWS_ACCOUNT_NUMBER}/"
-# sed -e "s/BUCKETNAME/${BUCKET}/"
+# s/ACCOUNTNUMBER/${AWS_ACCOUNT_NUMBER}/
+# s/BUCKETNAME/${BUCKET}/
+# AWS_ACCOUNT_NUMBER is introspected from the api
+# keys used when running concierge
+# BUCKET is taken from the config when operating
+# on s3 bucket policies.
 #
 
 account:
