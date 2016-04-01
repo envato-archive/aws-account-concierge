@@ -1,0 +1,167 @@
+# all policy files are filtered through
+# s/ACCOUNTNUMBER/${AWS_ACCOUNT_NUMBER}/
+# s/BUCKETNAME/${BUCKET}/
+# AWS_ACCOUNT_NUMBER is introspected from the api
+# keys used when running concierge
+# BUCKET is taken from the config when operating
+# on s3 bucket policies.
+#
+
+account:
+  # enables login via https://whatever.signin.aws.amazon.com/console/
+  # instead of https://<acctno>.signin.aws.amazon.com/console/
+  alias: whatever
+  # Checks on the root account, reports if the mfa is not in the
+  # desired state, DOES NOT try to correct.
+  root:
+    mfa_enabled: true
+  notification_email_address: somegroup@somecompany.com
+  consolidated_billing_request_email: financedept@bigcompany.com
+    # Two defaults available
+    # Default 24 chars, reuse allowed.
+    # Strong 32, no reuse allowed.
+    #- policies/account/default-password-policy.json 
+    #- policies/account/require_strong_passwords.json 
+  password_policy: policies/account/require_strong_passwords.json
+  # Creates a managed policy that can be used in the rest of the config file
+  managed_policies:
+    - name: ManageSelf
+      description: 'Allow users to edit their own passwords, mfas and keys'
+      policy_file: policies/managed/ManageSelf.json
+# Define sns topics for later use in the alarms section
+# The users will be sent a subscription request, but will need
+# to confirm for themselves.
+sns:
+  - name: account-security-alerts
+    region: us-east-1
+    subscribers:
+      - root_account_email@bigcompany.com
+# Create roles and ensure the attached policies
+# and inline policies match what is specified
+roles:
+  - name: admin
+    policy_files:
+      - policies/role/administrator-role.json
+    require_mfa_to_assume_role: true
+    trusted_principal_arns:
+      - arn:aws:iam::<acctnumber>:user/example.user
+  - name: readonly
+    require_mfa_to_assume_role: true
+    policy_files: 
+      - policies/role/readonly-role.json
+  - name: create
+    require_mfa_to_assume_role: true
+    policy_files: 
+      - policies/role/create-role.json
+  - name: delete
+    require_mfa_to_assume_role: true
+    policy_files: 
+      - policies/role/delete-role.json
+  - name: CloudTrail_CloudWatchLogs_Role
+    require_mfa_to_assume_role: true
+    policy_files:
+      - policies/role/CloudTrail_CloudWatchLogs_Role.json
+# Create IAM groups and ensure attached policies,
+# inline policies and assigned users match
+groups:
+  - name: SuperAdmins
+    description: Unfettered Access to all services 
+    managed_policies:
+      - AdministratorAccess
+    policy_files:
+      - policies/group/super-admin-group.json
+  - name: IAMAdmins
+    description: Unfettered access to iam functions 
+    policy_files:
+      - policies/group/iam-admin-group.json
+  - name: SelfManagingUsers
+    description: Manage own passwords and mfa devices via console and cli 
+    policy_files:
+      - policies/group/self-managing-users-group.json
+  - name: Developers
+    description: Normal Developer access - some protection from messing with prod 
+    policy_files:
+      - policies/group/developers-group.json
+  - name: PrivilegedDevelopers
+    description: Sudo type access for developers - scary commands allowed
+    policy_files:
+      - policies/group/developers-group.json
+# Create buckets and ensure policies match
+# can also create prefixes if desired.
+s3:
+  - name: operational_data
+    bucket_policy_file:
+      - policies/bucket/default_operational_data_bucket_policy.json
+    prefixes:
+      - logs
+    region:
+      - us-east-1
+# Manage cloudtrails configuration
+cloudtrails:
+  regions:
+    - us-east-1
+    - ap-southeast-2
+    - all
+# Create alarms and associated metric filters
+# intended for cloudtrails based account level alarms, rather than
+# resource based alarms.   
+# See http://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudwatch-alarms-for-cloudtrail.html
+alarms:
+  - name: root_account_usage
+    regions:
+      - us-east-1
+      - ap-southeast-2
+      - all
+    filter: '{ $.userIdentity.type = "Root" && $.userIdentity.invokedBy NOT EXISTS }'
+    transform: 'metricName=RootAccountUsageCount,metricNamespace=CloudTrailMetrics,metricValue=1'
+    topic: account-security-alerts
+    namespace: CloudTrailMetrics
+    threshold: 1
+    comparison: GreaterThanOrEqualToThreshold
+    statistic: Sum
+    period: 300
+    eval_period: 1
+    description: Report when the root account is used
+    metric_name: RootAccountUsageCount
+  - name: non_mfa_console_login_filter
+    regions:
+      - all
+    filter: '{ $.eventName = "ConsoleLogin" && $.additionalEventData.MFAUsed != "No" }'
+    transform: 'metricName=NonMFAConsoleLoginCount,metricNamespace=CloudTrailMetrics,metricValue=1'
+    topic: account-security-alerts
+    namespace: CloudTrailMetrics
+    threshold: 1
+    comparison: GreaterThanOrEqualToThreshold
+    statistic: Sum
+    period: 300
+    eval_period: 1
+    description: Report when non mfa console logins occur 
+    metric_name: NonMFAConsoleLoginCount
+  - name: failed_login_attempts
+    regions:
+      - all
+    filter: '{ ($.eventName = ConsoleLogin) && ($.errorMessage = "Failed authentication") }'
+    transform: 'metricName=FailedConsoleLoginCount,metricNamespace=CloudTrailMetrics,metricValue=1'
+    topic: account-security-alerts
+    namespace: CloudTrailMetrics
+    threshold: 3
+    comparison: GreaterThanOrEqualToThreshold
+    statistic: Sum
+    period: 300
+    eval_period: 1
+    description: 'Report failed console login attempts' 
+    metric_name: 'FailedConsoleLoginCount'
+  - name: rejected_api_calls
+    regions:
+      - all
+    filter: '{($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=DeleteUserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy)}'
+    transform: 'metricName=IamChangesCount,metricNamespace=CloudTrailMetrics,metricValue=1'
+    topic: account-security-alerts
+    namespace: CloudTrailMetrics
+    threshold: 1
+    comparison: GreaterThanOrEqualToThreshold
+    statistic: Sum
+    period: 300
+    eval_period: 1
+    description: 'Report IAM policy changes' 
+    metric_name: 'IamChangesCount'

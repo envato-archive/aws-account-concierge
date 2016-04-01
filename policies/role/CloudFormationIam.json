@@ -1,0 +1,42 @@
+{
+  "PolicyDocument": {
+    "Statement": [
+      {
+        "Action": [
+          "iam:AddRoleToInstanceProfile",
+          "iam:AttachGroupPolicy",
+          "iam:AttachRolePolicy",
+          "iam:AttachUserPolicy",
+          "iam:CreateGroup",
+          "iam:CreateInstanceProfile",
+          "iam:CreatePolicy",
+          "iam:CreatePolicyVersion",
+          "iam:CreateRole",
+          "iam:CreateUser",
+          "iam:DeleteGroup",
+          "iam:DeleteGroupPolicy",
+          "iam:DeleteInstanceProfile",
+          "iam:DeletePolicy",
+          "iam:DeletePolicyVersion",
+          "iam:DeleteRole",
+          "iam:DeleteRolePolicy",
+          "iam:DetachGroupPolicy",
+          "iam:DetachRolePolicy",
+          "iam:PassRole",
+          "iam:PutGroupPolicy",
+          "iam:PutRolePolicy",
+          "iam:RemoveRoleFromInstanceProfile",
+          "iam:RemoveUserFromGroup",
+          "iam:SetDefaultPolicyVersion",
+          "iam:UpdateAssumeRolePolicy",
+          "iam:GenerateCredentialReport",
+          "iam:Get*",
+          "iam:List*"
+        ],
+        "Effect": "Allow",
+        "Resource": "*"
+      }
+    ]
+  }, 
+  "PolicyName": "iam-read-create-roles"
+}

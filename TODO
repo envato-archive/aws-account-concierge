@@ -1,0 +1,11 @@
+Meta:
+Make this a gem
+tests much tests
+
+Features:
+Allow creation of users
+Manage inline policies on groups
+Allow creation of keypairs
+Don't just report on root mfa, create one if required.
+Make sure that all recommendations of https://d0.awsstatic.com/whitepapers/compliance/AWS_CIS_Foundations_Benchmark.pdf can be actioned.
+
