@@ -34,6 +34,13 @@ The concierge can take care of the following details for you:
   - configuring metric filters
   - alarm action topics
   - regions they are configured in.
+
+Policy files have a primative templating function, concierge
+will figure out your AWS account number from the API keys that
+you supply when running concierge and replace instances of
+ACCOUNTNUMBER with the real thing.  Similiarly BUCKETNAME for
+s3 bucket policies.
+
   
 # Development Status
 
@@ -44,7 +51,12 @@ Currently under active development, I'd consider it at the alpha stage now and b
 
 1.  edit the account `config.yml` as appropriate, `example-full-config.yml` isn't a bad place to start.
 2.  bundle install
-3.  assume and administrative role in the account in question and  run ```bundle exec ./concierge.rb <path to your yaml file>```
+3.  Assume a privileged role in your account or fill in your environment with privileged API keys and run the concierge tool passing it the path to your config file in the manner that best suits your environment:
+
+    * `aws-vault exec <rolename> -- bundle exec ./concierge.rb <path to your yaml file>` for
+    [aws-vault](https://github.com/99designs/aws-vault) users
+    * `eval $(aws --profile <privilegedprofile> keyring show | sed -e 's/^/export /g') && bundle exec ./concierge <path to your yaml file>` for [aws keyring](https://github.com/sj26/awscli-keyring) users
+    * set the `AWS_ACCESS_KEY_ID` or `AWS_SECRET_ACCESS_KEY` and `AWS_SESSION_TOKEN` using whatever method you wish and run `bundle exec ./concierge <path to your yaml file>`
 
 # Maintainers
 
