@@ -1,0 +1,71 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DenyScaryStuff",
+            "Effect": "Deny",
+            "Action": [
+                "ec2:PurchaseReservedInstancesOffering",
+                "rds:PurchaseReservedDBInstancesOffering",
+                "elasticache:PurchaseReservedCacheNodesOffering",
+                "cloudformation:DeleteStack",
+                "route53:DeleteHostedZone"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Sid": "PermitMostThings",
+            "Effect": "Allow",
+            "Action": [
+                "autoscaling:*",
+                "cloudfront:*",
+                "cloudformation:*",
+                "cloudtrail:*",
+                "cloudwatch:*",
+                "codedeploy:*",
+                "config:*",
+                "ec2:*",
+                "ecs:*",
+                "elasticache:*",
+                "elasticloadbalancing:*",
+                "glacier:*",
+                "lambda:*",
+                "rds:*",
+                "route53:*",
+                "s3:*",
+                "ses:*",
+                "sns:*",
+                "sqs:*",
+                "support:*",
+                "tags:*",
+                "trustedadvisor:*",
+                "usage:*",
+                "iam:AddRoleToInstanceProfile",
+                "iam:AttachRolePolicy",
+                "iam:CreateInstanceProfile",
+                "iam:CreatePolicy",
+                "iam:CreatePolicyVersion",
+                "iam:CreateRole",
+                "iam:DeleteInstanceProfile",
+                "iam:DeletePolicy",
+                "iam:DeletePolicyVersion",
+                "iam:DeleteRole",
+                "iam:DeleteRolePolicy",
+                "iam:DetachRolePolicy",
+                "iam:Get*",
+                "iam:List*",
+                "iam:PassRole",
+                "iam:PutRolePolicy",
+                "iam:RemoveRoleFromInstanceProfile",
+                "iam:SetDefaultPolicyVersion",
+                "iam:UpdateAssumeRolePolicy"
+            ],
+            "Resource": [
+                "*"
+            ]
+        }
+    ]
+  }
+}

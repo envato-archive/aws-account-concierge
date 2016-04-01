@@ -1,0 +1,9 @@
+---
+AllCops:
+  Exclude:
+    - scripts/**/*
+    - vendor/**/*
+
+Metrics/LineLength:
+  Max: 183
+

@@ -1,0 +1,94 @@
+{
+  "Version": "2012-10-17", 
+  "Statement": [
+    {
+      "Action": [
+        "iam:ChangePassword", 
+        "iam:CreateAccessKey", 
+        "iam:ListAccessKeys",
+        "iam:DeleteAccessKey", 
+        "iam:ListGroupsForUser", 
+        "iam:UpdateLoginProfile", 
+        "iam:UpdateAccessKey"
+      ], 
+      "Resource": [
+        "arn:aws:iam::ACCOUNTNUMBER:user/${aws:username}"
+      ], 
+      "Effect": "Allow"
+    }, 
+    {
+      "Action": [
+        "iam:GetAccountPasswordPolicy"
+      ], 
+      "Resource": [
+        "*"
+      ], 
+      "Effect": "Allow"
+    }, 
+    {
+      "Action": [
+        "iam:*VirtualMFADevice"
+      ], 
+      "Resource": [
+        "arn:aws:iam::ACCOUNTNUMBER:mfa/${aws:username}"
+      ], 
+      "Effect": "Allow", 
+      "Sid": "AllowUsersToCreateDeleteTheirOwnVirtualMFADevices"
+    }, 
+    {
+      "Action": [
+        "iam:DeactivateMFADevice", 
+        "iam:EnableMFADevice", 
+        "iam:ListMFADevices", 
+        "iam:ListVirtualMFADevices", 
+        "iam:ResyncMFADevice"
+      ], 
+      "Resource": [
+        "arn:aws:iam::ACCOUNTNUMBER:user/${aws:username}"
+      ], 
+      "Effect": "Allow", 
+      "Sid": "AllowUsersToEnableSyncDisableTheirOwnMFADevices"
+    }, 
+    {
+      "Action": [
+        "iam:ListVirtualMFADevices"
+      ], 
+      "Resource": [
+        "arn:aws:iam::ACCOUNTNUMBER:mfa/*"
+      ], 
+      "Effect": "Allow", 
+      "Sid": "AllowUsersToListVirtualMFADevices"
+    }, 
+    {
+      "Action": [
+        "iam:ListUsers"
+      ], 
+      "Resource": [
+        "arn:aws:iam::ACCOUNTNUMBER:user/*"
+      ], 
+      "Effect": "Allow", 
+      "Sid": "AllowUsersToListUsersInConsole"
+    }, 
+    {
+      "Action": [
+        "iam:ListGroupPolicies"
+      ], 
+      "Resource": [
+        "arn:aws:iam::ACCOUNTNUMBER:group/developers"
+      ], 
+      "Effect": "Allow", 
+      "Sid": "AllowUsersToListDeveloperGroupPolicies"
+    }, 
+    {
+      "Action": [
+        "iam:GetAccountSummary", 
+        "iam:ListAccountAliases"
+      ], 
+      "Resource": [
+        "*"
+      ], 
+      "Effect": "Allow", 
+      "Sid": "AllowAccessToSummaryInformation"
+    }
+  ]
+}
