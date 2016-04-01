@@ -70,7 +70,7 @@ limitations under the License.
 
 # Contributor Code of Conduct
 
-See the [CODE_OF_CONDUCT.txt](https://github.com/envato/stack_master/blob/master/CODE_OF_CONDUCT.txt) file
+See the [CODE_OF_CONDUCT.txt](https://github.com/envato/aws_account_concierge/blob/master/CODE_OF_CONDUCT.txt) file
 
 
 # Contributing
