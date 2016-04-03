@@ -4,6 +4,7 @@ require 'json'
 
 module Concierge
   module Handlers
+    # Loading/Generating policies
     class Policies
       def self.load_policies_from_files(policy_files, bucket_name = nil)
         policy_objects = []
@@ -21,11 +22,11 @@ module Concierge
         iam = Aws::IAM::Client.new(region: 'us-east-1')
         begin
           arn = iam.get_user.user.arn
-        rescue Aws::IAM::Errors::ValidationError => e
+        rescue Aws::IAM::Errors::ValidationError
           # No access to get user as a role, try doing a list user
           begin
             arn = iam.list_users.users[0].arn
-          rescue  Aws::IAM::Errors::ServiceError => f
+          rescue  Aws::IAM::Errors::ServiceError
             STDERR.puts 'Unable to determine AWS account number, please set ENV var AWS_ACCOUNT_NUMBER'
             exit
           end
