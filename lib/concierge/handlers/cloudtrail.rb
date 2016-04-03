@@ -7,7 +7,6 @@ module Concierge
   module Handlers
     # Manage cloudtrail configuration
     class Cloudtrail
-
       TRAILNAME = 'default-trail'
       LOGGROUP  = 'CloudTrail/DefaultLogGroup'
 
@@ -74,9 +73,9 @@ module Concierge
 
       def self.trail_configs_same?(current_trail, bucket_name, log_group_arn, role_arn, include_global_events)
         current_trail['s3_bucket_name'] == bucket_name && current_trail['s3_key_prefix'] == 'logs' &&
-        current_trail['cloud_watch_logs_log_group_arn'] == log_group_arn &&
-        current_trail['cloud_watch_logs_role_arn'] == role_arn &&
-        current_trail['include_global_service_events'] == include_global_events
+          current_trail['cloud_watch_logs_log_group_arn'] == log_group_arn &&
+          current_trail['cloud_watch_logs_role_arn'] == role_arn &&
+          current_trail['include_global_service_events'] == include_global_events
       end
 
       def self.create_trail(region, bucket_name, log_group_arn, role_arn, include_global_events)
@@ -84,7 +83,7 @@ module Concierge
         begin
           current_trail = get_trail_config(region, TRAILNAME)
           if !current_trail.nil?
-            if !trail_configs_same?(current_trail, bucket_name, log_group_arn, role_arn, include_global_events)
+            unless trail_configs_same?(current_trail, bucket_name, log_group_arn, role_arn, include_global_events)
               cloudtrail(region).update_trail(
                 name: TRAILNAME, s3_bucket_name: bucket_name,
                 s3_key_prefix: 'logs', cloud_watch_logs_log_group_arn: log_group_arn,

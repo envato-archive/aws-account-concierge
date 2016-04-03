@@ -143,7 +143,7 @@ module Concierge
       end
 
       def self.policy_versions(policy_arn)
-        iam.list_policy_versions(policy_arn: arn).versions.reject(&:is_default_version)
+        iam.list_policy_versions(policy_arn: policy_arn).versions.reject(&:is_default_version)
       end
 
       def self.remove_managed_policy(name)

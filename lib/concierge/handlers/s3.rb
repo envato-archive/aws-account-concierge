@@ -10,11 +10,11 @@ module Concierge
       def self.sync(config)
         actions_taken = []
         config.each do |bucket|
-          bucket_actions = []
           next if Concierge::Utils.config_item_disabled(bucket)
 
           validation_errors = validate_config(bucket)
-          actions_taken <<  bucket['name']
+          return validation_errors unless validation_errors.nil? || validation_errors.empty?
+          actions_taken << bucket['name']
           bucket_policy = Concierge::Handlers::Policies.load_policies_from_files(bucket['bucket_policy_file'], bucket['name']).first
           bucket_actions = Concierge::Handlers::S3.sync_bucket(bucket['name'], bucket['region'], bucket_policy, bucket['prefixes'])
           bucket_actions = 'is ok,' if bucket_actions.nil? || bucket_actions.flatten.empty?
@@ -32,7 +32,7 @@ module Concierge
       end
 
       def self.bucket_location(bucket_name)
-         s3.get_bucket_location(bucket: bucket_name).location_constraint
+        s3.get_bucket_location(bucket: bucket_name).location_constraint
       rescue Aws::S3::Errors::NoSuchBucket
         nil
       end

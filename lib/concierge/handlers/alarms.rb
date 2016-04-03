@@ -37,13 +37,13 @@ module Concierge
       end
 
       def self.validate_config(alarm)
-       errors = []
-       errors <<  "Alarm needs a name #{alarm.inspect}" unless alarm.key?('name')
-       errors <<  "Must specify regions array" unless alarm.key?('regions') && alarm['regions'].is_a?(Array)
-       alarm['regions'].each do |region|
-         errors <<  "Notification topic must exist in #{region} specified" if get_topic_arn(region, alarm['topic']).nil?
-       end
-       errors
+        errors = []
+        errors << "Alarm needs a name #{alarm.inspect}" unless alarm.key?('name')
+        errors << 'Must specify regions array' unless alarm.key?('regions') && alarm['regions'].is_a?(Array)
+        alarm['regions'].each do |region|
+          errors << "Notification topic must exist in #{region} specified" if get_topic_arn(region, alarm['topic']).nil?
+        end
+        errors
       end
 
       def self.cloudwatch(region)
@@ -58,7 +58,7 @@ module Concierge
         Aws::SNS::Client.new(region: region)
       end
 
-      def self.configure_alarm(region, name, filter, transforms, threshold, comparison, statistic, period, eval_periods, description, metric, notification_topic )
+      def self.configure_alarm(region, name, filter, transforms, threshold, comparison, statistic, period, eval_periods, description, metric, notification_topic)
         actions_taken = []
         notification_arn = get_topic_arn(region, notification_topic)
         actions_taken << create_metric_filter(region, 'CloudTrail/DefaultLogGroup', name, filter, transforms)
@@ -67,8 +67,8 @@ module Concierge
 
       def self.create_metric_filter(region, log_group, name, filter, transforms)
         actions_taken = []
-        if logs(region).describe_metric_filters(log_group_name: log_group, filter_name_prefix: name).metric_filters.find { |filter| filter.filter_name == name }.nil?
-          logs(region).put_metric_filter(log_group_name: log_group, filter_name: name, filter_pattern: filter, metric_transformations: transforms )
+        if logs(region).describe_metric_filters(log_group_name: log_group, filter_name_prefix: name).metric_filters.find { |metric_filter| metric_filter.filter_name == name }.nil?
+          logs(region).put_metric_filter(log_group_name: log_group, filter_name: name, filter_pattern: filter, metric_transformations: transforms)
           actions_taken << 'created filter'
         end
         actions_taken
@@ -80,21 +80,21 @@ module Concierge
         if alarm_list.nil?
           alarm = nil
         else
-          alarm = alarm_list.metric_alarms.find { |alarm| alarm.alarm_name == name }
+          alarm = alarm_list.metric_alarms.find { |metric_alarm| metric_alarm.alarm_name == name }
         end
-        if !alarm.nil?
+        unless alarm.nil?
           if alarm['alarm_description'] != description || alarm['actions_enabled'] != true ||
-            alarm['alarm_actions'] != [ notification_arn ] || alarm['metric_name'] != metric ||
-            alarm['namespace'] != namespace || alarm['evaluation_periods'] != evaluation_periods ||
-            alarm['threshold'] != threshold || alarm['comparison_operator'] != operator ||
-            alarm['statistic'] != statistic || alarm['period'] != period
+             alarm['alarm_actions'] != [notification_arn] || alarm['metric_name'] != metric ||
+             alarm['namespace'] != namespace || alarm['evaluation_periods'] != evaluation_periods ||
+             alarm['threshold'] != threshold || alarm['comparison_operator'] != operator ||
+             alarm['statistic'] != statistic || alarm['period'] != period
             cloudwatch(region).delete_alarms(alarm_names: name)
             actions_taken << 'deleted alarm'
           end
         end
         cloudwatch(region).put_metric_alarm(
           alarm_name: name, alarm_description: description, actions_enabled: true,
-          alarm_actions: [ notification_arn ] , metric_name: metric, namespace: namespace, evaluation_periods: evaluation_periods,
+          alarm_actions: [notification_arn], metric_name: metric, namespace: namespace, evaluation_periods: evaluation_periods,
           threshold: threshold, comparison_operator: operator, statistic: statistic, period: period)
         actions_taken << 'added alarm'
       end
