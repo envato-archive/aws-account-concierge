@@ -32,7 +32,7 @@ module Concierge
       end
 
       def self.bucket_location(bucket_name)
-         s3.get_bucket_location(bucket: bucket_name).location_constraint
+        s3.get_bucket_location(bucket: bucket_name).location_constraint
       rescue Aws::S3::Errors::NoSuchBucket
         nil
       end
