@@ -2,38 +2,34 @@
 require 'yaml'
 require 'pp'
 require './lib/concierge/utils'
-require './lib/concierge/handlers/roles'
-require './lib/concierge/handlers/policies'
-require './lib/concierge/handlers/groups'
-require './lib/concierge/handlers/s3'
-require './lib/concierge/handlers/cloudtrail'
-require './lib/concierge/handlers/alarms'
-require './lib/concierge/handlers/account'
-require './lib/concierge/handlers/sns'
 
+# Config items to consider unless overriden on command line
+DEFAULT_CONFIG_ITEMS = %w(roles groups s3 cloudtrail alarms account sns)
+
+# Load everything in the handlers directory
+project_root = File.dirname(File.absolute_path(__FILE__))
+Dir.glob(project_root + '/lib/concierge/handlers/*') { |file| require file }
+
+config_filename = ARGV.shift
 begin
-  config = YAML.load_file(ARGV[0].to_s)
+  config = YAML.load_file(config_filename)
+  puts "Loaded config from #{config_filename}"
 rescue
-  puts "Please supply path to valid config file as first and only argument Unable to load '#{ARGV[0].to_s}'"
+  puts "Please supply path to valid config file as first argument, unable to load '#{config_filename}'"
   exit
 end
 
-# Which sections in the config to actually do
-config_items_to_do = ['roles','groups','s3','cloudtrail','alarms', 'account', 'sns']
-
-puts "Loaded config from #{ARGV[0].to_s}"
-if ARGV.length > 1
-  config_items_to_do = []
-  ARGV[1,ARGV.length].each do |item|
-    config_items_to_do.push(item)
-  end
+if ARGV.empty?
+  config_items_to_do = DEFAULT_CONFIG_ITEMS
+else
+  config_items_to_do = ARGV
 end
-puts "Will act only on #{config_items_to_do.join(" ")} sections"
+puts "Will act only on #{config_items_to_do.join(' ')} sections"
 
 config_items_to_do.each do |item|
-  next unless config.key?(item) 
+  next unless config.key?(item)
   puts "Working on #{item} section"
-  handler = Concierge::Handlers::const_get(item.capitalize)
+  handler = Concierge::Handlers.const_get(item.capitalize)
   printf Concierge::Utils.cleanup_output(handler.sync(config[item]))
   puts 'Done'
 end
