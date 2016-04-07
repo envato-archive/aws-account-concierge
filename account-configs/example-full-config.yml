@@ -97,7 +97,7 @@ s3:
     region:
       - us-east-1
 # Manage cloudtrails configuration
-cloudtrails:
+cloudtrail:
   regions:
     - us-east-1
     - ap-southeast-2
