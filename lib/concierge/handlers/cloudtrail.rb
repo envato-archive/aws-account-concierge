@@ -99,7 +99,7 @@ module Concierge
             )
             actions_taken << "created default trail - global_events_status #{include_global_events}"
           end
-        rescue Aws::CloudTrail::Errors::CloudWatchLogsDeliveryUnavailableException
+        rescue Aws::CloudTrail::Errors::CloudWatchLogsDeliveryUnavailableException, Aws::CloudTrail::Errors::InvalidCloudWatchLogsLogGroupArnException
           actions_taken << "skipped configuring default trail in #{region} as it is not supported"
         end
         actions_taken

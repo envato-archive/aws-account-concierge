@@ -1,48 +1,20 @@
 {
-   "Statement" : [
-      {
-         "Action" : "s3:GetBucketAcl",
-         "Sid" : "AWSCloudTrailAclCheck20131101",
-         "Principal" : {
-            "AWS" : [
-               "arn:aws:iam::903692715234:root",
-               "arn:aws:iam::035351147821:root",
-               "arn:aws:iam::859597730677:root",
-               "arn:aws:iam::814480443879:root",
-               "arn:aws:iam::216624486486:root",
-               "arn:aws:iam::086441151436:root",
-               "arn:aws:iam::388731089494:root",
-               "arn:aws:iam::284668455005:root",
-               "arn:aws:iam::113285607260:root"
-            ]
-         },
-         "Effect" : "Allow",
-         "Resource" : "arn:aws:s3:::BUCKETNAME"
-      },
-      {
-         "Sid" : "AWSCloudTrailWrite20131101",
-         "Condition" : {
-            "StringEquals" : {
-               "s3:x-amz-acl" : "bucket-owner-full-control"
-            }
-         },
-         "Principal" : {
-            "AWS" : [
-               "arn:aws:iam::903692715234:root",
-               "arn:aws:iam::035351147821:root",
-               "arn:aws:iam::859597730677:root",
-               "arn:aws:iam::814480443879:root",
-               "arn:aws:iam::216624486486:root",
-               "arn:aws:iam::086441151436:root",
-               "arn:aws:iam::388731089494:root",
-               "arn:aws:iam::284668455005:root",
-               "arn:aws:iam::113285607260:root"
-            ]
-         },
-         "Effect" : "Allow",
-         "Resource" : "arn:aws:s3:::BUCKETNAME/logs/AWSLogs/ACCOUNTNUMBER/*",
-         "Action" : "s3:PutObject"
-      }
-   ],
-   "Version" : "2012-10-17"
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AWSCloudTrailAclCheck20150319",
+            "Effect": "Allow",
+            "Principal": {"Service": "cloudtrail.amazonaws.com"},
+            "Action": "s3:GetBucketAcl",
+            "Resource": "arn:aws:s3:::BUCKETNAME"
+        },
+        {
+            "Sid": "AWSCloudTrailWrite20150319",
+            "Effect": "Allow",
+            "Principal": {"Service": "cloudtrail.amazonaws.com"},
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::BUCKETNAME/logs/AWSLogs/ACCOUNTNUMBER/*",
+            "Condition": {"StringEquals": {"s3:x-amz-acl": "bucket-owner-full-control"}}
+        }
+    ]
 }
